@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/auth/user', [AuthController::class, 'auth_user'])->middleware('auth:sanctum');
+Route::get('/unauthorized', function(Request $request) {
+    return response()->json([
+        'message' => 'Unauthorized'
+    ], 401);
+})->name('unauthorized');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resources([
+        'user' => UserController::class
+    ]);
 });
