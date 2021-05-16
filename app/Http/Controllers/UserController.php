@@ -33,41 +33,17 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make(
-            $data=$request->all(), 
-            $rules= [
-                'name' => 'required|string',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|confirmed',
-                'role_id' => 'required|integer'
-            ]
-        );
-        if ($validator->fails()) {
-            $message = $validator->errors();
-            return response()->json($message, 400);
-        }
-
-        $data = $validator->validate();
-        $role = Role::find($data['role_id']);
-        if ($role === null) {
-            return response()->json([
-                'role_id' => ['role_id not found']
-            ], 400);
-        }
+        // validation
+        $request->validate([
+            'name' => ['required', 'string'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'confirmed'],
+            'role_id' => ['required', 'integer', 'exists:roles,id']
+        ]);
         
-        try {
-            $data = $validator->validate();
-            $new_user = new User;
-            $new_user->name = $data['name'];
-            $new_user->email = $data['email'];
-            $new_user->password = Hash::make($data['password']);
-            $new_user->role_id = $data['role_id'];
-            $new_user->save();
-        } catch (QueryException $e) {
-            return response()->json(['message' => $e], 500);
-        }
+        // Insert User
+        $new_user = User::create($request->all());
         
-
         return response()->json($new_user, 201);
     }
 
@@ -91,38 +67,14 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $validator = Validator::make(
-            $data=$request->all(), 
-            $rules= [
-                'name' => ['required', 'string'],
-                'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-                'password' => ['confirmed'],
-                'role_id' => ['required', 'integer']
-            ]
-        );
-        if ($validator->fails()) {
-            $message = $validator->errors();
-            return response()->json($message, 400);
-        }
-        $data = $validator->validate();
-        $role = Role::find($data['role_id']);
-        if ($role === null) {
-            return response()->json([
-                'role_id' => ['role_id not found']
-            ], 400);
-        }
-
-        try {
-            $user->name = $request->get('name', $user->name);
-            $user->email = $request->get('email', $user->email);
-            if ($request->get('password') !== null) {
-                $user->password = Hash::make($request->get('password'));
-            }
-            $user->role_id = $request->get('role_id', $user->role_id);
-            $user->save();
-        } catch (QueryException $e) {
-            return response()->json(['message' => $e], 500);
-        }
+        $request->validate([
+            'name' => ['required', 'string'],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'password' => ['confirmed'],
+            'role_id' => ['required', 'integer', 'exists:roles,id']
+        ]);
+        
+        $user->fill($request->all())->save();
         
         return response()->json($user, 200);
     }
