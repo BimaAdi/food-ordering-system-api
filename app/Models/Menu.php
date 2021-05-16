@@ -9,7 +9,20 @@ class Menu extends Model
 {
     use HasFactory;
 
-     /**
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'price',
+        'is_available',
+        'img_url',
+        'type_menu_id'
+    ];
+
+    /**
      * Indicates if the model should be timestamped.
      *
      * @var bool
