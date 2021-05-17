@@ -22,6 +22,7 @@ class OrderController extends Controller
 
         return Order::with('order_menus', 'user')
                     ->where('is_done', $is_done)
+                    ->orderBy('created_at', 'DESC')
                     ->get();
     }
 
