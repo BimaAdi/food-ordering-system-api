@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::post('/auth/user', [AuthController::class, 'auth_user'])->middleware('auth:sanctum');
+Route::get('/auth-user', [AuthController::class, 'auth_user'])->middleware('auth:sanctum');
 Route::get('/unauthorized', function(Request $request) {
     return response()->json([
         'message' => 'Unauthorized'
@@ -32,6 +32,7 @@ Route::get('/unauthorized', function(Request $request) {
 })->name('unauthorized');
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::put('/order/{order}/done', [OrderController::class, 'done']);
     Route::resources([
         'user' => UserController::class,
         'menu' => MenuController::class,

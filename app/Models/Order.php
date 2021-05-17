@@ -27,4 +27,20 @@ class Order extends Model
     {
         return $this->hasMany(OrderMenu::class);
     }
+
+    /**
+     * Get the order_menus for the order.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'waiter_id');
+    }
+
+    /**
+     * Get all the menus for the order.
+     */
+    public function menus()
+    {
+        return $this->belongsToMany(Menu::class, 'order_menus', 'order_id', 'menu_id');
+    }
 }

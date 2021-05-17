@@ -17,7 +17,12 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $size = $request->input($key='size', $default='10');
-        return Order::with('order_menus')->paginate($size);
+        $is_done = $request->input($key='is_done', $default='false');
+        $is_done = $is_done !== 'false' ? 1 : 0;
+
+        return Order::with('order_menus', 'user')
+                    ->where('is_done', $is_done)
+                    ->get();
     }
 
     /**
@@ -63,7 +68,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return Order::with('order_menus')->find($order->id)->toJson();
+        return Order::with('order_menus', 'user', 'menus')->find($order->id)->toJson();
     }
 
     /**
@@ -109,6 +114,19 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $order->delete();
+        return response()->json('', 204);
+    }
+
+    /**
+     * set Is_done = true the specified resource from storage.
+     *
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\Response
+     */
+    public function done(Order $order)
+    {
+        $order->is_done = true;
+        $order->save();
         return response()->json('', 204);
     }
 }

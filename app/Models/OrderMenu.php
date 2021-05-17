@@ -34,4 +34,12 @@ class OrderMenu extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    /**
+     * Get the order that owns the order_menu.
+     */
+    public function menu()
+    {
+        return $this->belongsTo(Menu::class);
+    }
 }
